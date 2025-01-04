@@ -1,12 +1,26 @@
-#[path = "./property.rs"] pub mod property;
-#[path = "./experience.rs"] pub mod experience;
-#[path = "./attribute.rs"] pub mod attribute;
 #[path = "./level.rs"] pub mod level;
-use property::Property;
-use experience::Experience;
-use attribute::Attribute;
+#[path = "./property.rs"] pub mod property;
+#[path = "./statistic.rs"] pub mod statistic;
+#[path = "./attribute.rs"] pub mod attribute;
+#[path = "./experience.rs"] pub mod experience;
 use level::Level;
+use property::Property;
+use statistic::Statistic;
+use attribute::Attribute;
+use experience::Experience;
 use std::fmt::{Display, Formatter, Result};
+
+#[derive(Debug)]
+enum Attributes {
+    AGI,
+    END,
+    DEX,
+    STR,
+    CHA,
+    INT,
+    RES,
+    WIS,
+}
 
 pub struct Character {
     /* Properties */
@@ -16,41 +30,56 @@ pub struct Character {
 
     /* Attributes */
     pub agility: Attribute,
-    pub charisma: Attribute,
-    pub constitution: Attribute,
+    pub endurance: Attribute,
     pub dexterity: Attribute,
+    pub strength: Attribute,
+    pub charisma: Attribute,
     pub intellect: Attribute,
     pub resolve: Attribute,
-    pub strength: Attribute,
     pub wisdom: Attribute,
 
     /* Statistics */
     pub health: Property,
     pub mana: Property,
     pub stamina: Property,
+    perception: Statistic,
+    initiative: Statistic,
+    attack_power: Statistic,
+    magic_power: Statistic,
+    fortitude: Statistic,
+    reflexes: Statistic,
+    willpower: Statistic,
+    charm: Statistic,
+    critical_strike_chance: Statistic,
+    critical_strike_power: Statistic,
+    miracle_chance: Statistic,
+    miracle_power: Statistic,
+
 }
 
 impl Character {
     #![allow(unused)]
     pub fn new(character_name:&str) -> Character {
-        return Character {
+        let mut result = Character {
             name: String::from(character_name),
             level: Level::default(),
             experience: Experience::default(),
 
             agility: Attribute::default(),
             charisma: Attribute::default(),
-            constitution: Attribute::default(),
+            endurance: Attribute::default(),
             dexterity: Attribute::default(),
             intellect: Attribute::default(),
             resolve: Attribute::default(),
             strength: Attribute::default(),
             wisdom: Attribute::default(),
 
-            health: Property::new(100),
-            mana: Property::new(100),
-            stamina: Property::new(100),
-        }
+            health: Property::default(),
+            mana: Property::default(),
+            stamina: Property::default(),
+        };
+        result.update();
+        return result;
     }
 
     pub fn update(&mut self) {
@@ -66,17 +95,17 @@ impl Character {
     }
 
     fn calc_max_health(&self) -> u32 {
-        let con = u32::from(self.constitution.total(self.level.get()));
+        let con = u32::from(self.endurance.total(self.level.get()));
         return con * 10 * u32::from(self.level.get());
     }
 
     fn calc_max_mana(&self) -> u32 {
-        let int = u32::from(self.intellect.total(self.level.get()));
+        let int = u32::from(self.wisdom.total(self.level.get()));
         return int * 10 * u32::from(self.level.get());
     }
 
     fn calc_max_stamina(&self) -> u32 {
-        let con = u32::from(self.constitution.total(self.level.get()));
+        let con = u32::from(self.endurance.total(self.level.get()));
         let str = u32::from(self.strength.total(self.level.get()));
         let agi = u32::from(self.agility.total(self.level.get()));
         let dex = u32::from(self.dexterity.total(self.level.get()));
@@ -106,7 +135,7 @@ impl Default for Character {
             stamina: Default::default(),
             agility: Default::default(),
             charisma: Default::default(),
-            constitution: Default::default(),
+            endurance: Default::default(),
             dexterity: Default::default(),
             intellect: Default::default(),
             resolve: Default::default(),
